@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyForm</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="./jS/MyForm.js"></script>
+    <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCKV_ZWS2vXsELohIbIxE_Liqf0msc0W2U&callback=initMap&libraries=places&v=weekly"
+    defer
+  ></script>
+
+</head>
+<body>
+
+    <!-- This is the header  -->
+    <header>
+        <nav>
+          <ul class="navbar">
+            <li class="navbarli"><a href="AboutMe.html">About Me</a></li>
+            <li class="navbarli"><a href="MySchedule.html">Schedule</a></li>
+            <li class="navbarli"><a href="MyForm.html">Form</a></li>
+          </ul>
+        </nav>
+    </header>
+    
+    <div class="secondSidePanel">
+        <form method="post" action = "https://www-users.cselabs.umn.edu/~cuixx327/a2.php">
+            
+            <!-- hidden inputs below - no visual inputs that will -->
+            <!-- be submitted when the form is submitted -->
+            <input type = "hidden" name = "recipient"
+                value = "challou@cs.umn.edu">
+            <input type = "hidden" name = "subject"
+                value = "Feedback Form">
+            <input type = "hidden" name = "redirect"
+                value = "http://www.cs.umn.edu/">
+            
+            <!-- input type = "text" inserts a text field -->
+            <p>
+                <label>Event:</label>
+                <input name = "event" type = "text" size = "25" id="event"
+                    maxlength = "30" pattern="[a-zA-Z0-9\s]+" title="Must be alphanumeric" required >
+                
+            </p>
+            
+            <p>   
+                <label> Day of Week:</label>
+                <select name="day" size="1" id="day" required >
+                    <option value="" disabled selected>Select an option</option>
+                    <option value="Sun">Sun</option>
+                    <option value="Mon">Mon</option>
+                    <option value="Tue">Tue</option>
+                    <option value="Wed">Wed</option>
+                    <option value="Thu">Thu</option>
+                    <option value="Fri">Fri</option>
+                    <option value="Sat">Sat</option>
+                </select>
+            </p>
+
+            <p>
+                <label> Start time:</label>
+                <input name="start" type="time" id="start" required >        
+            </p>
+
+            <p>
+                <label> End time:</label>
+                <input name="end" type="time" id="end" required >        
+            </p>
+            <p>
+                <label> Phone:</label>
+                <input name="phone" type="tel" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" placeholder="123-456-7889" id="phone" required > 
+            </p>
+
+            <p>
+                <label> Location:</label>
+                <input name="location" type="text" id="location" required >        
+            </p>
+
+            <p>
+                <label> Extra info:</label>
+                <input name="extra" type="text" id="extra" required >        
+            </p>
+
+            <p>
+                <label> Enter URL for the extra info:</label>
+                <input name="url" type="url" id="url" required >        
+            </p>
+        
+            <!-- submit and reset insert buttons for submitting -->
+            <!-- and clearing the form's contents				-->
+            <p>
+                <input type = "submit" value = "Submit" >
+                <!-- <input type = "reset" value = "Clear" > -->
+            </p>
+        
+        </form>
+
+     
+
+    </div>
+
+    <div id="map"></div>
+
+ 
+    <div id="infowindow-content">
+      <img id="place-icon" src="" height="16" width="16">
+      <span id="place-name" class="title"></span><br>
+       <span id="place-id"></span><br>
+      <span id="place-address"></span>
+    </div>
+
+
+
+
+    
+</body>
+</html>

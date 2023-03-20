@@ -1,0 +1,249 @@
+
+/* everything */
+
+body{
+  background-color: lightblue;
+}
+
+
+/* about me */
+
+.aboutme {
+  margin: 50px;
+}
+
+/* about me Date calc */
+
+#datecalc {
+  width: 15%;
+  margin-left: 10%;
+  margin-right: 10%;
+  padding: 2%;
+  border-style:solid;
+  border-color: greenyellow;
+}
+
+/* about me image */
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px;
+  border-style:solid;
+  border-color: black;
+}
+#pfp {
+  max-width: 50%;
+  max-height: 50%;
+  height: 600px;
+}
+
+
+/* yt video */
+
+#insta-container {
+  margin: 5%;
+}
+
+/* nav stuff */
+
+.navbar {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333333;
+  }
+  
+  .navbarli {
+    float: left;
+  }
+  
+  li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 16px;
+    text-decoration: none;
+  }
+  
+  li a:hover {
+    background-color: #111111;
+  }
+
+
+/* Schedule table */
+
+.title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+table {
+    
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 60%;
+    margin: 0 auto;
+  }
+  
+  td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+  }
+  
+  tr:nth-child(even) {
+    background-color: #dddddd;
+  }
+
+  tr:nth-child(odd) {
+    background-color: white;
+  }
+
+  /* schedule tables images */
+    
+    tr img {
+        display: none; 
+        
+      }
+
+    tr:hover img {  
+      display: block;
+      height :30px;
+      width : 30px;
+    }
+
+
+  #big-images {
+    text-align: center;
+    margin: 0 auto;
+    /* margin-top: 5%;
+    margin-bottom: 5%; */
+  }
+
+  #big {
+    max-width: 100%;
+    width: 600px;
+    max-height: 50%;
+    height: 500px;
+  }
+
+
+/* Form */
+
+
+/* submit button */
+input[type=submit] {
+  width: 200px;
+  background-color: #09f;
+  color: white;
+  padding: 15px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+
+input, select {
+ 
+  width: 50%;
+  padding: 10px;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+}
+
+label{
+  display: inline-block;
+  width: 40%;
+  
+}
+
+
+
+form{
+  padding: 20px;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: white;
+}
+
+
+/* 
+@media screen and (max-width: 600px) {
+  .col-25, .col-75, input[type=submit] {
+    width: 100%;
+    margin-top: 0;
+  }
+} */
+
+
+/* map stuff */
+
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+
+
+/*  for the transition button image on sched page */
+
+#big {
+  opacity: 1;
+  -webkit-transition: opacity 0.3s ease-in-out;
+  -moz-transition: opacity 0.3s ease-in-out;
+  -ms-transition: opacity 0.3s ease-in-out;
+  -o-transition: opacity 0.3s ease-in-out;
+  transition: opacity 0.3 ease-in-out;
+}
+#big.fade {
+  opacity:0;
+}
+
+
+#map-wrapper{
+  width: 100%;
+  height: 50%;
+}
+
+
+#map {
+  /* margin-left: 10; */
+  width: 70%;
+  height: 50%;
+  float: left;
+}
+.map-2 {
+  /* margin-left: 10; */
+  width: 40%;
+  height: 50%;
+  float: right;
+}
+
+
+.sidePanel {
+  width: 30%;
+  height: 50%; 
+  float: right;
+  overflow: auto;
+  background-color: gray;
+}
+
+
+.secondSidePanel {
+  width: 30%; 
+  float: left;
+  overflow: auto;
+}
+
+#logoButton{
+  width: 10%;
+  float: left;
+}
+
