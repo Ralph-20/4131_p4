@@ -17,6 +17,12 @@ BUFF_SIZE = 8192
 # Equivalent to CRLF, named NEWLINE for clarity
 NEWLINE = "\r\n"
 
+OK = 'HTTP/1.1 200 OK{}Content-Type:text/html{}Connection: close{}{}'.format(NEWLINE, NEWLINE, NEWLINE, NEWLINE)
+
+NOT_FOUND = 'HTTP/1.1 404 NOT FOUND{}Connection: close{}{}'.format(NEWLINE, NEWLINE, NEWLINE)
+
+FORBIDDEN = 'HTTP/1.1 403 FORBIDDEN{}Connection: close{}{}'.format(NEWLINE, NEWLINE, NEWLINE)
+
 HTTP_REQ_HEADER_END = (NEWLINE + NEWLINE).encode("utf-8")
 
 # This class is 100% built for you.
@@ -129,7 +135,7 @@ def file_exists(file_name: str) -> bool:
 # necessary.
 # TODO: Finish this set with all relevant files types that should be read in
 # binary
-binary_type_files = set(["jpg", "jpeg"])
+binary_type_files = set(["jpg", "jpeg", "png", "gif", "ico", "pdf", "zip", "mp3"])
 
 
 def should_return_binary(file_extension: str) -> bool:
@@ -228,7 +234,7 @@ class HTTPServer:
     Our actual HTTP server which will service GET, POST, and HEAD requests.
     """
 
-    def __init__(self, host="localhost", port=9001, directory="."):
+    def __init__(self, host="localhost", port=8043, directory="."):
         print(f"Server started. Listening at http://{host}:{port}/")
         self.host = host
         self.port = port
@@ -273,6 +279,15 @@ class HTTPServer:
             return self.post_request(request)
         if request.method == "HEAD":
             return self.head_request(request)
+        
+
+        if not file_exists(request.path):   
+            response = NOT_FOUND
+        elif not file_has_read_permission(request.path):
+            response = FORBIDDEN
+        else:
+            response = OK
+
         return self.method_not_allowed()
 
     # TODO: Write the response to a GET request
