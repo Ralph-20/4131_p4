@@ -209,13 +209,20 @@ class ResponseBuilder:
 
     def build(self) -> bytes:
   
-        Response = self.status.encode("utf-8") + NEWLINE
+        MyResponse = self.status
+        MyResponse += NEWLINE
         for header in self.headers:
-            Response += self.headers.encode("utf-8") + NEWLINE
-        Response += NEWLINE + self.content 
+            MyResponse += header + NEWLINE
+        MyResponse += NEWLINE 
 
-        print("response is this ..... :" + Response)
-        return Response.encode("utf-8")
+        # encoding the response into utf-8
+        MyResponse.encode("utf-8")
+
+        print("Here is my response: " + NEWLINE + NEWLINE + MyResponse + NEWLINE)
+        MyResponse += self.content 
+
+        print("response is this ..... :" + MyResponse)
+        return MyResponse
         """
         Returns the utf-8 bytes of the response.
 
