@@ -212,7 +212,11 @@ class ResponseBuilder:
         #Uses the `self.status`, `self.headers`, and `self.content` to form
         #an HTTP response in valid formatting per w3c specifications, which
   
-        Response = self.status + ";" + self.headers + ";" + "\n" + self.content + ";"
+        Response = self.status + NEWLINE
+        for header in self.headers:
+            Response += self.headers + NEWLINE
+        Response += self.content 
+
         return Response.encode("utf-8")
 
         """
@@ -293,8 +297,8 @@ class HTTPServer:
     # TODO: Write the response to a GET request
     def get_request(self, request: Request) -> Response:
         
-        uri = request.uri
-        should_return_binary = request.should_return_binary
+        uri = request.path
+        should_return_bin = should_return_binary(request)
     
         # Get the first item in the URI to check for redirect
         first_item = uri.split('/')[0]
@@ -307,14 +311,14 @@ class HTTPServer:
 
         # Check if the file exists
         if not os.path.exists(uri):
-            return Response(status_code=HTTPStatus.NOT_FOUND, content=None, headers=None)
+            return Response(status_code=NOT_FOUND, content=None, headers=None)
 
         # Check if the file has read permission for others
         if not os.access(uri, os.R_OK):
-            return Response(status_code=HTTPStatus.FORBIDDEN, content=None, headers=None)
+            return Response(status_code=FORBIDDEN, content=None, headers=None)
 
         # Get the file content and mime type
-        with open(uri, 'rb' if should_return_binary else 'r') as f:
+        with open(uri, 'rb' if should_return_bin else 'r') as f:
             content = f.read()
         mime_type, _ = guess_type(uri)
 
@@ -322,7 +326,7 @@ class HTTPServer:
         if mime_type.startswith('text/'):
             status_code = HTTPStatus.OK
         else:
-            status_code = HTTPStatus.OK if should_return_binary else HTTPStatus.UNSUPPORTED_MEDIA_TYPE
+            status_code = HTTPStatus.OK if should_return_bin else HTTPStatus.UNSUPPORTED_MEDIA_TYPE
 
         headers = {'Content-Type': mime_type}
         return Response(status_code=status_code, content=content, headers=headers)
@@ -442,7 +446,12 @@ class HTTPServer:
         Returns 404 not found status and sends back our 404.html page.
         """ 
 
-
+        builder = ResponseBuilder()
+        builder.set_status("404", "NOT FOUND")
+        allowed = ", ".join(["GET", "POST", "HEAD"])
+        builder.add_header("Allow", allowed)
+        builder.add_header("Connection", "close")
+        return builder.build()
 
         pass
 
