@@ -162,6 +162,7 @@ mime_types: Dict[str, MimeType] = {
     "css": "text/css",
     "js": "application/javascript",
     "txt": "text/plain",
+    "json" : "application/json"
 }
 
 
@@ -207,18 +208,14 @@ class ResponseBuilder:
             self.content = content.encode("utf-8")
 
     def build(self) -> bytes:
-        #returns the utf-8 bytes of the response.
-
-        #Uses the `self.status`, `self.headers`, and `self.content` to form
-        #an HTTP response in valid formatting per w3c specifications, which
   
-        Response = self.status + NEWLINE
+        Response = self.status.encode("utf-8") + NEWLINE
         for header in self.headers:
-            Response += self.headers + NEWLINE
-        Response += self.content 
+            Response += self.headers.encode("utf-8") + NEWLINE
+        Response += NEWLINE + self.content 
 
+        print("response is this ..... :" + Response)
         return Response.encode("utf-8")
-
         """
         Returns the utf-8 bytes of the response.
 
@@ -300,22 +297,30 @@ class HTTPServer:
         uri = request.path
         should_return_bin = should_return_binary(request)
     
-        # Get the first item in the URI to check for redirect
-        first_item = uri.split('/')[0]
+        # Checking for redirect
 
-        # Check if the URI is a redirect request
-        if first_item.startswith('http'):
-            location = first_item
-            headers = {'Location': location}
-            return Response(status_code=HTTPStatus.TEMPORARY_REDIRECT, content=None, headers=headers)
+        if uri.find("redirect"):
+            builder = ResponseBuilder()
+            builder.set_status("307", "TEMPORARY REDIRECT")
+            allowed = ", ".join(["GET", "POST", "HEAD"])
+            builder.add_header("Allow", allowed)
+            builder.add_header("Connection", "close")
+            return builder.build()
 
-        # Check if the file exists
-        if not os.path.exists(uri):
-            return Response(status_code=NOT_FOUND, content=None, headers=None)
 
-        # Check if the file has read permission for others
-        if not os.access(uri, os.R_OK):
-            return Response(status_code=FORBIDDEN, content=None, headers=None)
+        # # Check if the URI is a redirect request
+        # if first_item.startswith('http'):
+        #     location = first_item
+        #     headers = {'Location': location}
+        #     return Response(status_code=HTTPStatus.TEMPORARY_REDIRECT, content=None, headers=headers)
+
+        # # Check if the file exists
+        # if not os.path.exists(uri):
+        #     return Response(status_code=NOT_FOUND, content=None, headers=None)
+
+        # # Check if the file has read permission for others
+        # if not os.access(uri, os.R_OK):
+        #     return Response(status_code=FORBIDDEN, content=None, headers=None)
 
         # Get the file content and mime type
         with open(uri, 'rb' if should_return_bin else 'r') as f:
@@ -355,6 +360,10 @@ class HTTPServer:
 
     # TODO: Write the response to a POST request
     def post_request(self, request: Request) -> Response:
+
+
+        #going to want to use urllib.parse.unquote or from that lib
+
         """
         Responds to a POST request with an HTML page with keys and values
         echoed per the requirements writeup.
