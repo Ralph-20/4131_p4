@@ -209,19 +209,22 @@ class ResponseBuilder:
 
     def build(self) -> bytes:
   
-        MyResponse = self.status
-        MyResponse += NEWLINE
+        MyResponse = f"{self.status}{NEWLINE}"
+
+
         for header in self.headers:
-            MyResponse += header + NEWLINE
+            MyResponse += f"{header}{NEWLINE}"
+        
         MyResponse += NEWLINE 
 
         # encoding the response into utf-8
-        MyResponse.encode("utf-8")
+        MyResponse = MyResponse.encode("utf-8")
 
-        print("Here is my response: " + NEWLINE + NEWLINE + MyResponse + NEWLINE)
-        MyResponse += self.content 
+        if not self.content == None:
+            MyResponse += self.content
 
-        print("response is this ..... :" + MyResponse)
+        # returning the response 
+         
         return MyResponse
         """
         Returns the utf-8 bytes of the response.
@@ -233,7 +236,7 @@ class ResponseBuilder:
 
         Where CRLF is our `NEWLINE` constant.
         """
-        # TODO: this function
+        
       
 
 
@@ -280,68 +283,70 @@ class HTTPServer:
         client_sock.shutdown(1)
         client_sock.close()
 
-    def process_response(self, request: Request) -> bytes:
-        if request.method == "GET":
-            return self.get_request(request)
-        if request.method == "POST":
-            return self.post_request(request)
-        if request.method == "HEAD":
-            return self.head_request(request)
+    # def process_response(self, request: Request) -> bytes:
+    #     if request.method == "GET":
+    #         return self.get_request(request)
+    #     if request.method == "POST":
+    #         return self.post_request(request)
+    #     if request.method == "HEAD":
+    #         return self.head_request(request)
         
 
-        if not file_exists(request.path):   
-            response = NOT_FOUND
-        elif not file_has_read_permission(request.path):
-            response = FORBIDDEN
-        else:
-            response = OK
+    #     if not file_exists(request.path):   
+    #         response = NOT_FOUND
+    #     elif not file_has_read_permission(request.path):
+    #         response = FORBIDDEN
+    #     else:
+    #         response = OK
 
-        return self.method_not_allowed()
+    #     return self.method_not_allowed()
+
+    def process_response(self, request: Request) -> bytes:
+            if request.method == "GET":
+                return self.get_request(request)
+            if request.method == "POST":
+                return self.post_request(request)
+            if request.method == "HEAD":
+                # return self.head_request(request)
+                if not file_exists(request.path): 
+                    response = NOT_FOUND 
+                elif not has_permission_other(request.path): 
+                    response = FORBIDDEN 
+                else: 
+                    response = OK 
+                return response.encode('utf-8') 
+            return self.method_not_allowed()
+
 
     # TODO: Write the response to a GET request
     def get_request(self, request: Request) -> Response:
         
         uri = request.path
         should_return_bin = should_return_binary(request)
+
+        item = uri.split('/'[0])
     
         # Checking for redirect
 
-        if uri.find("redirect"):
-            builder = ResponseBuilder()
-            builder.set_status("307", "TEMPORARY REDIRECT")
-            allowed = ", ".join(["GET", "POST", "HEAD"])
-            builder.add_header("Allow", allowed)
-            builder.add_header("Connection", "close")
-            return builder.build()
+        if  "redirect" in uri:
+            location = item
+            headers = {'Location': location}
+            return self.Temporary_Redirect(headers)
 
+        # check to make sure that the path exists
+        if not os.path.exists(uri):
+            return self.resource_not_found()
 
-        # # Check if the URI is a redirect request
-        # if first_item.startswith('http'):
-        #     location = first_item
-        #     headers = {'Location': location}
-        #     return Response(status_code=HTTPStatus.TEMPORARY_REDIRECT, content=None, headers=headers)
+        #check to make sure that a file does not have the other read permission 
+        if not os.access(uri, os.R_OK):
+            return self.forbidden()
 
-        # # Check if the file exists
-        # if not os.path.exists(uri):
-        #     return Response(status_code=NOT_FOUND, content=None, headers=None)
-
-        # # Check if the file has read permission for others
-        # if not os.access(uri, os.R_OK):
-        #     return Response(status_code=FORBIDDEN, content=None, headers=None)
-
-        # Get the file content and mime type
-        with open(uri, 'rb' if should_return_bin else 'r') as f:
-            content = f.read()
-        mime_type, _ = guess_type(uri)
-
-        # Set the HTTP status code based on the file type
-        if mime_type.startswith('text/'):
-            status_code = HTTPStatus.OK
+        if should_return_bin:
+            MyContent = get_file_contents(file_name = uri)
         else:
-            status_code = HTTPStatus.OK if should_return_bin else HTTPStatus.UNSUPPORTED_MEDIA_TYPE
+            MyContent = get_file_contents(file_name = uri)
 
-        headers = {'Content-Type': mime_type}
-        return Response(status_code=status_code, content=content, headers=headers)
+        return self.Status_Ok(MyContent)
 
         """Responds to a GET request with the associated bytes.
 
@@ -406,40 +411,8 @@ class HTTPServer:
 
         HINT: you can _remove_ content from a ResponseBuilder...
         """
-        # Get the URI and should_return_binary flag from the request
-        uri = request.uri
-        should_return_binary = request.should_return_binary
 
-        # Get the first item in the URI to check for redirect
-        first_item = uri.split('/')[0]
-
-        # Check if the URI is a redirect request
-        if first_item.startswith('http'):
-            location = first_item
-            headers = {'Location': location}
-            return Response(status_code=HTTPStatus.TEMPORARY_REDIRECT, content=None, headers=headers)
-
-        # Check if the file exists
-        if not os.path.exists(uri):
-            return Response(status_code=HTTPStatus.NOT_FOUND, content=None, headers=None)
-
-        # Check if the file has read permission for others
-        if not os.access(uri, os.R_OK):
-            return Response(status_code=HTTPStatus.FORBIDDEN, content=None, headers=None)
-
-        # Get the file content and mime type
-        with open(uri, 'rb' if should_return_binary else 'r') as f:
-            content = f.read()
-        mime_type, _ = guess_type(uri)
-
-        # Set the HTTP status code based on the file type
-        if mime_type.startswith('text/'):
-            status_code = HTTPStatus.OK
-        else:
-            status_code = HTTPStatus.OK if should_return_binary else HTTPStatus.UNSUPPORTED_MEDIA_TYPE
-
-        headers = {'Content-Type': mime_type}
-        return Response(status_code=status_code, content=None, headers=headers)
+        pass
 
 
     def method_not_allowed(self) -> Response:
@@ -467,9 +440,39 @@ class HTTPServer:
         allowed = ", ".join(["GET", "POST", "HEAD"])
         builder.add_header("Allow", allowed)
         builder.add_header("Connection", "close")
+        builder.set_content("404.html")
         return builder.build()
 
-        pass
+    def forbidden(self) -> Response:
+        """
+        Returns 404 not found status and sends back our 404.html page.
+        """ 
+        builder = ResponseBuilder()
+        builder.set_status("403", "FORBIDDEN")
+        allowed = ", ".join(["GET", "POST", "HEAD"])
+        builder.add_header("Allow", allowed)
+        builder.add_header("Connection", "close")
+        builder.set_content("403.html")
+        return builder.build()
+
+    def Temporary_Redirect(self, header) -> Response:
+        builder = ResponseBuilder()
+        builder.set_status("307", "TEMPORARY_REDIRECT")
+        allowed = ", ".join(["GET", "POST", "HEAD"])
+        builder.add_header("Allow", allowed)
+        builder.add_header("Connection", "OK")
+        builder.add_header(header)
+        return builder.build()
+
+    def Status_Ok(self, content) -> Response:
+        builder = ResponseBuilder()
+        builder.set_status("200", "STATUS_OK")
+        allowed = ", ".join(["GET", "POST", "HEAD"])
+        builder.add_header("Allow", allowed)
+        builder.add_header("Connection", "OK")
+        builder.set_content(content)
+        return builder.build()
+
 
 
 if __name__ == "__main__":
