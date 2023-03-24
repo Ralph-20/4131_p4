@@ -283,23 +283,6 @@ class HTTPServer:
         client_sock.shutdown(1)
         client_sock.close()
 
-    # def process_response(self, request: Request) -> bytes:
-    #     if request.method == "GET":
-    #         return self.get_request(request)
-    #     if request.method == "POST":
-    #         return self.post_request(request)
-    #     if request.method == "HEAD":
-    #         return self.head_request(request)
-        
-
-    #     if not file_exists(request.path):   
-    #         response = NOT_FOUND
-    #     elif not file_has_read_permission(request.path):
-    #         response = FORBIDDEN
-    #     else:
-    #         response = OK
-
-    #     return self.method_not_allowed()
 
     def process_response(self, request: Request) -> bytes:
             if request.method == "GET":
@@ -322,9 +305,14 @@ class HTTPServer:
     def get_request(self, request: Request) -> Response:
         
         uri = request.path
-        should_return_bin = should_return_binary(request)
 
-        item = uri.split('/'[0])
+        #getting file extension
+        
+        if not (uri == ""):
+            extension = uri.split('.')[1]
+            item = uri.split('/')[0]
+
+        should_return_bin = should_return_binary(extension)
     
         # Checking for redirect
 
@@ -332,6 +320,10 @@ class HTTPServer:
             location = item
             headers = {'Location': location}
             return self.Temporary_Redirect(headers)
+
+        # Check if path leads to file
+        if not os.path.isfile(uri):
+            return self.forbidden()
 
         # check to make sure that the path exists
         if not os.path.exists(uri):
@@ -342,9 +334,9 @@ class HTTPServer:
             return self.forbidden()
 
         if should_return_bin:
-            MyContent = get_file_contents(file_name = uri)
+            MyContent = get_file_binary_contents(uri)
         else:
-            MyContent = get_file_contents(file_name = uri)
+            MyContent = get_file_contents(uri)
 
         return self.Status_Ok(MyContent)
 
@@ -411,8 +403,39 @@ class HTTPServer:
 
         HINT: you can _remove_ content from a ResponseBuilder...
         """
+  
+        uri = request.path
 
-        pass
+        #getting file extension
+        
+        if not (uri == ""):
+            extension = uri.split('.')[1]
+            item = uri.split('/')[0]
+
+        should_return_bin = should_return_binary(extension)
+    
+        # Checking for redirect
+
+        if  "redirect" in uri:
+            location = item
+            headers = {'Location': location}
+            return self.Temporary_Redirect(headers)
+
+        # check to make sure that the path exists
+        if not os.path.exists(uri):
+            return self.resource_not_found()
+
+        #check to make sure that a file does not have the other read permission 
+        if not os.access(uri, os.R_OK):
+            return self.forbidden()
+
+        # if should_return_bin:
+        #     MyContent = get_file_binary_contents(uri)
+        # else:
+        #     MyContent = get_file_contents(uri)
+        MyContent = ""
+
+        return self.Status_Ok(MyContent)
 
 
     def method_not_allowed(self) -> Response:
