@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from http import HTTPStatus
+# from http import HTTPStatus
 from mimetypes import guess_type
 import socket
 import os
@@ -211,7 +211,6 @@ class ResponseBuilder:
   
         MyResponse = f"{self.status}{NEWLINE}"
 
-
         for header in self.headers:
             MyResponse += f"{header}{NEWLINE}"
         
@@ -220,10 +219,14 @@ class ResponseBuilder:
         # encoding the response into utf-8
         MyResponse = MyResponse.encode("utf-8")
 
+        # print(MyResponse)
+
         if not self.content == None:
             MyResponse += self.content
 
         # returning the response 
+
+        
          
         return MyResponse
         """
@@ -312,14 +315,22 @@ class HTTPServer:
             extension = uri.split('.')[1]
             item = uri.split('/')[0]
 
-        should_return_bin = should_return_binary(extension)
+
     
         # Checking for redirect
 
         if  "redirect" in uri:
-            location = item
-            headers = {'Location': location}
-            return self.Temporary_Redirect(headers)
+            info = item.split('?')[1]
+            info = unquote_plus(info)
+            info = info.split('&')
+            print(info)
+            query = info[0].split('=')[1]
+            location = info[1].split('=')[1]
+
+            # location = item
+            location += f'search?q={query}'
+            print(NEWLINE + "location is this : " + location + NEWLINE + NEWLINE)
+            return self.Temporary_Redirect(location)
 
         # Check if path leads to file
         if not os.path.isfile(uri):
@@ -332,6 +343,8 @@ class HTTPServer:
         #check to make sure that a file does not have the other read permission 
         if not os.access(uri, os.R_OK):
             return self.forbidden()
+
+        should_return_bin = should_return_binary(extension)
 
         if should_return_bin:
             MyContent = get_file_binary_contents(uri)
@@ -393,7 +406,34 @@ class HTTPServer:
         was urlencoded, it will need to be decoded using
         `urllib.parse.unquote_plus`.
         """
-        pass
+
+        # get the data from the req
+
+        data = request.content
+        print( NEWLINE + "Data is : " + data +  NEWLINE +  NEWLINE)
+        
+
+        lines = data.split("&")
+
+        messageToReturn = '<html><body><table>'
+
+        for line in lines:
+            value = line.split("=")
+            messageToReturn += '<tr><td>{}</td><td>{}</td></tr>'.format(value[0], unquote_plus(value[1]))
+            # print( NEWLINE + "Lines is : " + line +  NEWLINE)
+
+
+        messageToReturn += '</table></body></html>'
+
+        print(messageToReturn)
+
+        builder = ResponseBuilder()
+        builder.set_status("200", "STATUS_OK")
+        allowed = ", ".join(["GET", "POST", "HEAD"])
+        builder.add_header("Allow", allowed)
+        builder.add_header("Connection", "OK")
+        builder.set_content(messageToReturn)
+        return builder.build()
 
     # TODO: Write the head request function
     def head_request(self, request: Request) -> Response:
@@ -408,7 +448,7 @@ class HTTPServer:
 
         #getting file extension
         
-        if not (uri == ""):
+        if(len(uri.split('.')) > 1):
             extension = uri.split('.')[1]
             item = uri.split('/')[0]
 
@@ -467,9 +507,7 @@ class HTTPServer:
         return builder.build()
 
     def forbidden(self) -> Response:
-        """
-        Returns 404 not found status and sends back our 404.html page.
-        """ 
+      
         builder = ResponseBuilder()
         builder.set_status("403", "FORBIDDEN")
         allowed = ", ".join(["GET", "POST", "HEAD"])
@@ -484,7 +522,7 @@ class HTTPServer:
         allowed = ", ".join(["GET", "POST", "HEAD"])
         builder.add_header("Allow", allowed)
         builder.add_header("Connection", "OK")
-        builder.add_header(header)
+        builder.add_header("Location", header)
         return builder.build()
 
     def Status_Ok(self, content) -> Response:

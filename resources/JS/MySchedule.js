@@ -4,35 +4,35 @@
           function showBigPic(num) {
               bigpic = document.getElementById("big");
               if (parseInt(num) == 1) {
-                bigpic.src = "images/MondayNightfb.jpg";
+                bigpic.src = "./resources/images/MondayNightfb.jpg";
                 bigpic.alt = "Monday Night football";
               }
               else if (parseInt(num) == 2) {
-                bigpic.src = "images/FolwellHall.jfif";
+                bigpic.src = "./resources/images/FolwellHall.jpg";
                 bigpic.alt = "Spanish";
               }
               else if (parseInt(num) == 3) {
-                bigpic.src = "images/BlazePizza.jpg";
+                bigpic.src = "./resources/images/BlazePizza.jpg";
                 bigpic.alt = "Blaze Pizza";
               }
               else if (parseInt(num) == 4) {
-                bigpic.src = "images/RecWell.jpg";
+                bigpic.src = "./resources/images/RecWell.jpg";
                 bigpic.alt = "RecWell";
               }
               else if (parseInt(num) == 5) {
-                bigpic.src = "images/Wahu.jpg";
+                bigpic.src = "./resources/images/Wahu.jpg";
                 bigpic.alt = "Wahu";
               }
               else if (parseInt(num) == 6) {
-                bigpic.src = "images/Caribou.jpg";
+                bigpic.src = "./resources/images/Caribou.jpg";
                 bigpic.alt = "Caribou Coffee";
               }
               else if (parseInt(num) == 7) {
-                bigpic.src = "images/HellsKitchen.jpg";
+                bigpic.src = "./resources/images/HellsKitchen.jpg";
                 bigpic.alt = "Hells Kitchen";
               }
               else if (parseInt(num) == 8) {
-                bigpic.src = "images/LifetimeFitness.jpg";
+                bigpic.src = "./resources/images/LifetimeFitness.jpg";
                 bigpic.alt = "Life Time";
               }
           }    
